@@ -38,11 +38,11 @@ app.get("/api/x402", (req, res) => {
       {
         scheme: "exact",
         network: "base",
-        maxAmountRequired: "0.25",
+        maxAmountRequired: "5",
         resource: "mint.token",
         description: "Mint a new token on Base network",
         mimeType: "application/json",
-        payTo: "0xYOUR_WALLET_ADDRESS_HERE",
+        payTo: "0x62Ae4503A0430D94ACebF3C3427a940E85511111",
         maxTimeoutSeconds: 30,
         asset: "USDC"
       }
@@ -66,7 +66,7 @@ app.get("/api/x402", (req, res) => {
     extra: {
       category: "blockchain",
       version: "1.0.0",
-      developer: "Your Name or Studio"
+      developer: "cat sanex"
     }
   };
   res.json(schema);
