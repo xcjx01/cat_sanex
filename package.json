@@ -1,12 +1,22 @@
 {
-  "name": "cat_sanex",
+  "name": "cat-sanex",
   "version": "1.0.0",
+  "description": "X402 Mint Token API - verifikasi pembayaran 5 USDC di Base network",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
-  }
+    "express": "^4.18.2",
+    "ethers": "^6.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "your-name",
+  "license": "MIT"
 }
