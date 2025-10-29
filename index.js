@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
     <p>Server berjalan dengan baik.</p>
     <p>Cek endpoint berikut:</p>
     <ul>
-      <li><a href="/api/x402">/api/x402</a> → Schema untuk x402scan</li>
+      <li><a href="/api/x402">/api/x402</a> → Schema untuk x402scan (402 Response)</li>
       <li><a href="/api/mint">/api/mint</a> → Endpoint mint token (402 Ready)</li>
     </ul>
   `);
@@ -31,7 +31,7 @@ app.post("/api/mint", async (req, res) => {
           resource: "mint.token",
           description: "Mint a new token on Base network",
           mimeType: "application/json",
-          payTo: "0x62Ae4503A0430D94ACebF3C3427a940E85511111", // Ganti dengan wallet kamu
+          payTo: "0xYOUR_WALLET_ADDRESS_HERE", // 🪙 Ganti dengan wallet kamu
           maxTimeoutSeconds: 30,
           asset: "USDC",
           outputSchema: {
@@ -58,14 +58,8 @@ app.post("/api/mint", async (req, res) => {
               }
             },
             output: {
-              message: {
-                type: "string",
-                description: "Mint result message"
-              },
-              transactionHash: {
-                type: "string",
-                description: "Simulated transaction hash"
-              }
+              message: { type: "string", description: "Mint result message" },
+              transactionHash: { type: "string", description: "Transaction hash" }
             }
           },
           extra: {
@@ -104,7 +98,7 @@ app.get("/api/x402", (req, res) => {
         resource: "mint.token",
         description: "Mint a new token on Base network",
         mimeType: "application/json",
-        payTo: "0xYOUR_WALLET_ADDRESS_HERE", // Ganti dengan wallet kamu
+        payTo: "0x62Ae4503A0430D94ACebF3C3427a940E85511111", // 🪙 Ganti dengan wallet kamu
         maxTimeoutSeconds: 30,
         asset: "USDC",
         outputSchema: {
@@ -113,29 +107,14 @@ app.get("/api/x402", (req, res) => {
             method: "POST",
             bodyType: "json",
             bodyFields: {
-              walletAddress: {
-                type: "string",
-                required: true,
-                description: "Recipient wallet address"
-              },
-              amount: {
-                type: "number",
-                required: true,
-                description: "Amount of tokens to mint"
-              },
-              tokenSymbol: {
-                type: "string",
-                required: true,
-                description: "Token symbol (e.g. MINT)"
-              }
+              walletAddress: { type: "string", required: true },
+              amount: { type: "number", required: true },
+              tokenSymbol: { type: "string", required: true }
             }
           },
           output: {
-            message: { type: "string", description: "Mint result message" },
-            transactionHash: {
-              type: "string",
-              description: "Simulated transaction hash"
-            }
+            message: { type: "string" },
+            transactionHash: { type: "string" }
           }
         },
         extra: {
@@ -146,7 +125,10 @@ app.get("/api/x402", (req, res) => {
       }
     ]
   };
-  res.json(schema);
+
+  // 🔥 Penting: x402scan butuh HTTP 402
+  res.status(402).json(schema);
 });
 
+// ====== Ekspor untuk Vercel ======
 module.exports = app;
