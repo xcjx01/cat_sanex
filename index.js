@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import dotenv from "dotenv";
 
 dotenv.config();
+
 const app = express();
 app.use(express.json());
 
@@ -14,22 +15,20 @@ const {
   TOKEN_ADDRESS
 } = process.env;
 
-// Inisialisasi provider & wallet
+// provider & wallet
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-// ABI minimal untuk USDC & token mint
+// ABI dasar
 const ERC20_ABI = [
-  "function decimals() view returns (uint8)",
   "event Transfer(address indexed from, address indexed to, uint256 value)"
 ];
 const TOKEN_ABI = ["function mint(address to, uint256 amount) public"];
 
-// Inisialisasi kontrak
 const usdc = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, provider);
 const token = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, wallet);
 
-// === ROUTE X402 ===
+// === Route utama untuk X402 ===
 app.get("/api/x402", async (req, res) => {
   res.status(402).json({
     x402Version: 1,
@@ -49,30 +48,27 @@ app.get("/api/x402", async (req, res) => {
   });
 });
 
-// === ROUTE MINT OTOMATIS ===
+// === Route POST untuk mint otomatis ===
 app.post("/api/x402", async (req, res) => {
   try {
-    // Ambil transaksi terbaru ke PAY_TO_WALLET
     const latestBlock = await provider.getBlockNumber();
     const logs = await provider.getLogs({
-      fromBlock: latestBlock - 1000, // rentang block terakhir
+      fromBlock: latestBlock - 1000,
       toBlock: "latest",
       address: USDC_ADDRESS,
       topics: [ethers.id("Transfer(address,address,uint256)")]
     });
 
-    let success = false;
     for (const log of logs) {
       const parsed = usdc.interface.parseLog(log);
       const from = parsed.args[0];
       const to = parsed.args[1];
-      const value = Number(parsed.args[2]) / 1e6; // USDC decimals 6
+      const value = Number(parsed.args[2]) / 1e6; // USDC decimals = 6
 
       if (to.toLowerCase() === PAY_TO_WALLET.toLowerCase() && value === 5) {
-        // Lakukan mint token ke pengirim
         const tx = await token.mint(from, 1);
         await tx.wait();
-        success = true;
+
         return res.json({
           message: `✅ Token minted ke ${from}`,
           mintTxHash: tx.hash
@@ -80,26 +76,25 @@ app.post("/api/x402", async (req, res) => {
       }
     }
 
-    if (!success)
-      res.status(400).json({
-        error: "❌ Tidak ditemukan transaksi pembayaran 5 USDC terakhir."
-      });
+    res.status(400).json({
+      error: "❌ Tidak ditemukan transaksi pembayaran 5 USDC terakhir."
+    });
   } catch (err) {
-    console.error(err);
+    console.error("🔥 Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// === HOMEPAGE ===
+// === Route homepage ===
 app.get("/", (req, res) => {
   res.send(`
-    <h1>✅ X402 Auto-Mint API</h1>
+    <h1>✅ X402 Mint Token API</h1>
     <p>Server berjalan di Base Mainnet.</p>
-    <p>Cek endpoint:</p>
     <ul>
-      <li><a href="/api/x402">/api/x402</a> → Skema pembayaran</li>
+      <li><a href="/api/x402">/api/x402</a> → Endpoint pembayaran</li>
     </ul>
   `);
 });
 
+// === Export app untuk Vercel ===
 export default app;
