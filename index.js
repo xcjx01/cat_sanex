@@ -2,7 +2,20 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-// ====== API untuk mint token (simulasi) ======
+// ====== Homepage ======
+app.get("/", (req, res) => {
+  res.send(`
+    <h1>✅ X402 Mint Token API</h1>
+    <p>Server berjalan dengan baik.</p>
+    <p>Cek endpoint berikut:</p>
+    <ul>
+      <li><a href="/api/x402">/api/x402</a> → Schema untuk x402scan</li>
+      <li><a href="/api/mint">/api/mint</a> → Endpoint mint token</li>
+    </ul>
+  `);
+});
+
+// ====== Endpoint Mint Token ======
 app.post("/api/mint", async (req, res) => {
   const { walletAddress, amount, tokenSymbol } = req.body;
 
@@ -17,7 +30,7 @@ app.post("/api/mint", async (req, res) => {
   });
 });
 
-// ====== Schema untuk x402scan.com ======
+// ====== Schema untuk x402scan ======
 app.get("/api/x402", (req, res) => {
   const schema = {
     x402Version: 1,
@@ -59,5 +72,4 @@ app.get("/api/x402", (req, res) => {
   res.json(schema);
 });
 
-// Vercel membutuhkan export app
 module.exports = app;
